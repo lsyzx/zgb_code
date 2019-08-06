@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~
+  ~ Copyright (c) 2018-2025, Nanjing Zhengebang Software Corp.,Ltd All rights reserved.
+  ~
+  ~ Redistribution and use in source and binary forms, with or without
+  ~ modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~ this list of conditions and the following disclaimer.
+  ~ Redistributions in binary form must reproduce the above copyright
+  ~ notice, this list of conditions and the following disclaimer in the
+  ~ documentation and/or other materials provided with the distribution.
+  ~ Neither the name of the pig4cloud.com developer nor the names of its
+  ~ contributors may be used to endorse or promote products derived from
+  ~ this software without specific prior written permission.
+  ~ Author: lsyzx (zhux@zhengebang.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zgb.test.sys.mapper.SysUserMapper">
+
+  <resultMap id="sysUserMap" type="com.zgb.test.sys.entity.SysUser">
+    <id property="userId" column="user_id"/>
+    <result property="userName" column="user_name"/>
+    <result property="userHeadImage" column="user_head_image"/>
+    <result property="userAccount" column="user_account"/>
+    <result property="userPass" column="user_pass"/>
+    <result property="userPhone" column="user_phone"/>
+    <result property="userMail" column="user_mail"/>
+    <result property="userStatus" column="user_status"/>
+    <result property="isDel" column="is_del"/>
+    <result property="roleStrs" column="role_strs"/>
+    <result property="createTime" column="create_time"/>
+  </resultMap>
+  <select id="queryUserPageInfo" resultMap="sysUserMap">
+    select t.user_id,
+    t.user_name,
+    t.user_head_image,
+    t.user_account,
+    t.user_pass,
+    t.user_phone,
+    t.user_mail,
+    t.user_status,
+    (select GROUP_CONCAT(r2.role_name) from zgb_sys_role_user r1 join zgb_sys_role r2 on(r1.role_id = r2.role_id)
+    where r1.user_id = t.user_id and r1.is_del=0 and r2.is_del=0) as role_strs,
+    (select GROUP_CONCAT(r2.role_id) from zgb_sys_role_user r1 join zgb_sys_role r2 on(r1.role_id = r2.role_id)
+    where r1.user_id = t.user_id and r1.is_del=0 and r2.is_del=0) as roles,
+    t.is_del,
+    t.create_time
+    from zgb_sys_user t where t.is_del = 0
+    <if test="sysUser.userName!=null and sysUser.userName!=''">
+      AND t.user_name=#{sysUser.userName}
+    </if>
+    <if test="sysUser.userAccount!=null and sysUser.userAccount!=''">
+      AND t.user_account=#{sysUser.userAccount}
+    </if>
+    <if test="sysUser.userStatus!=null">
+      AND t.user_status=#{sysUser.userStatus}
+    </if>
+  </select>
+</mapper>
