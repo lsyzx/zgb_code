@@ -1,0 +1,111 @@
+# 服务启动端口，即内置 tomcat 启动时占用的端口
+server:
+  port: 8080
+#上传配置
+upload:
+  config:
+    ysUrls: /image/**,/template/**,/dowload/**
+    localUrls: /Users/zhuxiang/work/upload/image/,/Users/zhuxiang/work/upload/template/,/Users/zhuxiang/work/upload/dowload/
+#Swagger账号配置
+swagger:
+  production: false
+  basic:
+    enable: true
+    username: admin
+    password: admin
+spring:
+  thymeleaf:
+    prefix: classpath:/templates/views/
+    resources:
+      static-locations: classpath:/static/
+  mvc:
+    dispatch-options-request: true
+  #设置上传文件大小
+  servlet:
+    multipart:
+      #设置文件上传大小，-1为不限制
+      maxFileSize: -1
+      #上传请求大小写，-1不限制
+      maxRequestSize: -1
+  #redis 配置
+  redis:
+    database: 0
+    host: 101.37.64.109
+    lettuce:
+      pool:
+        max-active: 8   #最大连接数据库连接数,设 0 为没有限制
+        max-idle: 8     #最大等待连接中的数量,设 0 为没有限制
+        max-wait: -1ms  #最大建立连接等待时间。如果超过此时间将接到异常。设为-1表示无限制。
+        min-idle: 0     #最小等待连接中的数量,设 0 为没有限制
+      shutdown-timeout: 100ms
+    password: 'Njurst@com7'
+    port: 6379
+  autoconfigure:
+    exclude: com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
+  #数据库访问配置
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/zgb_code?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&useSSL=false
+    username: root
+    password: root
+    driverClassName: com.mysql.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      stat-view-servlet:
+        login-username: admin
+        login-password: admin
+    #初始化连接大小
+    initial-size: 8
+    #最小空闲连接数
+    min-idle: 5
+    #最大连接数
+    max-active: 10
+    #查询超时时间
+    query-timeout: 6000
+    #事务查询超时时间
+    transaction-query-timeout: 6000
+    #关闭空闲连接超时时间
+    remove-abandoned-timeout: 1800
+    filters: stat,config
+    # 合并多个DruidDataSource的监控数据
+    use-global-data-source-stat: true
+    filter:
+      stat:
+      slow-sql-millis: 5000
+      # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+      connection-properties: druid.stat.mergeSql=true
+#Mybatis配置
+mybatis-plus:
+  # 修改Mapper自动加载无需重启
+  refresh: true
+  db-config:
+    #字段策略 IGNORED:"忽略判断",NOT_NULL:"非 NULL 判断"),NOT_EMPTY:"非空判断"
+    field-strategy: not_empty
+    #逻辑删除配置
+    logic-delete-value: 1
+    logic-not-delete-value: 0
+  mapper-locations: classpath:mapper/*/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+#需要授权的api配置
+auth:
+  url:
+    #需要授权的系统接口地址
+    sysUrls: /common/api/*,/api/sys/*
+#配置Swagger文档
+swaggerui:
+  info:
+    title: zgb_code
+    version: 1.0
+    description: zgb_code Api文档
+    contact: 朱翔
+    email: zhux@zhengebang.com
+    basePackage: com.zgb.test
+    tokenName: Authorization
+
+#日志配置
+logging:
+  level:
+    root: info
+  file: ./log/zgb_code.log
