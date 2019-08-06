@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~
+  ~ Copyright (c) 2018-2025, Nanjing Zhengebang Software Corp.,Ltd All rights reserved.
+  ~
+  ~ Redistribution and use in source and binary forms, with or without
+  ~ modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~ this list of conditions and the following disclaimer.
+  ~ Redistributions in binary form must reproduce the above copyright
+  ~ notice, this list of conditions and the following disclaimer in the
+  ~ documentation and/or other materials provided with the distribution.
+  ~ Neither the name of the pig4cloud.com developer nor the names of its
+  ~ contributors may be used to endorse or promote products derived from
+  ~ this software without specific prior written permission.
+  ~ Author: lsyzx (zhux@zhengebang.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zgb.test.sys.mapper.SysRoleMapper">
+  <resultMap id="sysRoleMap" type="com.zgb.test.sys.entity.SysRole">
+    <id property="roleId" column="role_id"/>
+    <result property="roleName" column="role_name"/>
+    <result property="roleDesc" column="role_desc"/>
+    <result property="isDel" column="is_del"/>
+    <result property="userCount" column="user_count"/>
+    <result property="selectRoleId" column="select_role_id"/>
+    <result property="createTime" column="create_time"/>
+  </resultMap>
+  <select id="querySysRolePageInfo" resultMap="sysRoleMap">
+    SELECT
+    t.role_id,
+    t.role_name,
+    t.role_desc,
+    t.is_del,
+    (select count(1) from zgb_sys_role_user r1 where r1.role_id = t.role_id and r1.is_del =0) as user_count,
+    t.create_time
+    FROM
+    zgb_sys_role t where t.is_del = 0
+    <if test="sysRole.roleName!=null and sysRole.roleName!=''">
+      and t.role_name like '%${sysRole.roleName}%'
+    </if>
+    order by t.create_time desc
+  </select>
+  <select id="queryRolesAndUserId" resultMap="sysRoleMap">
+        SELECT
+            t.role_id,
+            t.role_name,
+            t.role_desc,
+            t.is_del,
+            (
+            SELECT
+                r.role_id
+            FROM
+                zgb_sys_role_user r
+            WHERE
+                r.role_id = t.role_id
+                AND r.user_id = #{userId}
+                AND r.is_del = 0
+            ) AS select_role_id,
+            t.create_time
+        FROM
+            zgb_sys_role t
+        WHERE
+            t.is_del = 0
+    </select>
+</mapper>
