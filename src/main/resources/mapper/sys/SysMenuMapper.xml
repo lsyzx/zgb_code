@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~
+  ~ Copyright (c) 2018-2025, Nanjing Zhengebang Software Corp.,Ltd All rights reserved.
+  ~
+  ~ Redistribution and use in source and binary forms, with or without
+  ~ modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~ this list of conditions and the following disclaimer.
+  ~ Redistributions in binary form must reproduce the above copyright
+  ~ notice, this list of conditions and the following disclaimer in the
+  ~ documentation and/or other materials provided with the distribution.
+  ~ Neither the name of the pig4cloud.com developer nor the names of its
+  ~ contributors may be used to endorse or promote products derived from
+  ~ this software without specific prior written permission.
+  ~ Author: lsyzx (zhux@zhengebang.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zgb.test.sys.mapper.SysMenuMapper">
+
+  <resultMap id="sysMenuMap" type="com.zgb.test.sys.entity.SysMenu">
+    <id property="menuId" column="menu_id"/>
+    <result property="parentId" column="parent_id"/>
+    <result property="fullName" column="full_name"/>
+    <result property="operType" column="oper_type"/>
+    <result property="menuAuthority" column="menu_authority"/>
+    <result property="menuIcon" column="menu_icon"/>
+    <result property="menuUrl" column="menu_url"/>
+    <result property="menuSort" column="menu_sort"/>
+    <result property="menuState" column="menu_state"/>
+    <result property="isDel" column="is_del"/>
+    <result property="createTime" column="create_time"/>
+  </resultMap>
+  <select id="getMenusByUserId" resultMap="sysMenuMap">
+        SELECT
+            DISTINCT t3.menu_id,
+            t3.parent_id,
+            t3.full_name,
+            t3.oper_type,
+            t3.menu_authority,
+            t3.menu_icon,
+            t3.menu_url,
+            t3.menu_sort,
+            t3.menu_state,
+            t3.is_del,
+            t3.create_time
+        FROM
+            zgb_sys_role_user t1
+            LEFT JOIN zgb_sys_role_menu t2 ON ( t1.role_id = t2.role_id )
+            LEFT JOIN zgb_sys_menu t3 ON ( t2.menu_id = t3.menu_id )
+        WHERE
+            t1.user_id = #{userId}
+            AND t1.is_del=0
+            AND t2.is_del=0
+            AND t3.is_del = 0
+            AND t3.menu_state = 1
+            AND t3.oper_type in('dic','menu')
+            ORDER BY t3.menu_sort ASC
+    </select>
+
+  <select id="queryMaxSort" resultType="java.lang.Integer">
+        select ifnull(max(menu_sort),0)+1 from zgb_sys_menu where is_del=0 and parent_id=#{parentId}
+    </select>
+
+  <select id="queryPermissions" resultMap="sysMenuMap">
+        SELECT
+        DISTINCT t4.menu_id,
+        t4.parent_id,
+        t4.full_name,
+        t4.menu_icon,
+        t4.oper_type,
+        t4.menu_url,
+        t4.menu_authority,
+        t4.create_time
+    FROM
+        zgb_sys_role_user t2
+        LEFT JOIN zgb_sys_role_menu t3 ON ( t2.role_id = t3.role_id )
+        LEFT JOIN zgb_sys_menu t4 ON ( t3.menu_id = t4.menu_id )
+    WHERE
+         t4.is_del = 0
+        AND t2.is_del=0
+        AND t3.is_del=0
+        AND t4.menu_state = 1
+        AND t4.oper_type = 'button'
+        AND t2.user_id = #{userId}
+    </select>
+  <select id="queryMenusByRole" resultMap="sysMenuMap">
+        select t1.* from zgb_sys_menu t1
+        left join zgb_sys_role_menu t2 on(t1.menu_id = t2.menu_id)
+        where t1.is_del=0 and t2.is_del=0 and
+        t2.role_id =#{roleId}
+    </select>
+</mapper>
